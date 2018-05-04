@@ -264,7 +264,7 @@ var uuid = require("uuid");
 			rule.triggers.push({domain:rule.domain,range:rule.range});
 		}
 		rule.conditions.forEach(function(condition) {
-			(condition+"").replace(/exists\(\s*(\s*{.*\s*})\s*,\s*(.*)\s*\)/g,
+			(condition+"").replace(/.*exists\(\s*(\s*{.*\s*})\s*,\s*({.*})\s*\).*/g,
 				function(match,domainstr,conditionstr) {
 					var domain = new Function("return " + domainstr)(),
 						variables = Object.keys(domain),
