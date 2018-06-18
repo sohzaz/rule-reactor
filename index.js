@@ -264,7 +264,7 @@ var uuid = require("uuid");
 			rule.triggers.push({domain:rule.domain,range:rule.range});
 		}
 		rule.conditions.forEach(function(condition) {
-			(condition+"").replace(/.*exists\(\s*(\s*{.*\s*})\s*,\s*({.*})\s*\).*/g,
+			(condition+"").replace(/.*(?:exists|forAll)\(\s*(\s*{.*\s*})\s*,\s*({.*})\s*\).*/g,
 				function(match,domainstr,conditionstr) {
 					var domain = new Function("return " + domainstr)(),
 						variables = Object.keys(domain),
@@ -297,38 +297,6 @@ var uuid = require("uuid");
 					return match;
 				}
 			);
-			(condition+"").replace(/forAll\(\s*(\s*{.*\s*})\s*,\s*(.*)\s*\)/g,
-					function(match,domainstr,conditionstr) {
-						var domain = new Function("return " + domainstr)(), variables = Object.keys(domain);
-						var quantification = {domain: domain, range: {}};
-						rule.triggers.push(quantification);
-						variables.forEach(function(variable) {
-							var cons = domain[variable];
-							if(!rule.reactor.domain[cons.name]) {
-								rule.reactor.domain[cons.name] = cons;
-							}
-							quantification.range[variable] = (quantification.range[variable] ? quantification.range[variable] : {});
-							cons.prototype.rules = (cons.prototype.rules ? cons.prototype.rules : {});
-							cons.prototype.rules[rule.name] = rule;
-							cons.prototype.activeKeys = (cons.prototype.activeKeys ? cons.prototype.activeKeys : {});
-							conditionstr.replace(new RegExp("(\\b"+variable+"\\.\\w+\\b)","g"),
-								function(match) { 
-									var parts = match.split("."),key = parts[1];
-									// cache reactive non-function keys on class prototype
-									if(key.indexOf("(")===-1) {
-										cons.prototype.activeKeys[key] = true;
-										// cache what keys are associated with what variables
-										quantification.range[variable][key] = true;
-									}
-									// don't really do a replace!
-									return match;
-								}
-							);
-						});
-						// don't really do a replace!
-						return match;
-					}
-				);
 		});
 		rule.compiledConditions = [];
 		rule.conditions.forEach(function(condition,i) {
