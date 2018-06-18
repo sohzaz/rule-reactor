@@ -286,6 +286,7 @@ describe("rule-reactor ", function() {
 		expect(result).to.equal(true);
 		rule.delete();
 	});
+
 	it("should support universal tests",function() {
 		var reactor = new RuleReactor();
 		var to = new Number(1);
@@ -318,6 +319,42 @@ describe("rule-reactor ", function() {
 		expect(result).to.equal(true);
 		rule.delete();
 	});
+    it("should support universal multi-pattern tests",function() {
+        const reactor = new RuleReactor();
+        const to = new Number(1);
+        const from = new Number(2);
+        reactor.assert(to);
+        reactor.assert(from);
+        var rule = reactor.createRule("test",0,{},
+            function() {
+                return RuleReactor.forAll({to: Number, from: Number},{to: 1, from:2});
+            },
+            function() {
+                ;
+            }
+        );
+        var result = rule.test();
+        expect(result).to.equal(true);
+        rule.delete();
+    });
+    it("should support existential multi-pattern tests",function() {
+        const reactor = new RuleReactor();
+        const to = new Number(1);
+        const from = new Number(2);
+        reactor.assert(to);
+        reactor.assert(from);
+        var rule = reactor.createRule("test",0,{},
+            function() {
+                return RuleReactor.exists({to: Number, from: Number},{to: 1, from:2});
+            },
+            function() {
+                ;
+            }
+        );
+        var result = rule.test();
+        expect(result).to.equal(true);
+        rule.delete();
+    });
 	it("should support negation tests",function() {
 		var reactor = new RuleReactor();
 		var to = new Number(1);
